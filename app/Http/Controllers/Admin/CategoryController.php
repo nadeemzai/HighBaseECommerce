@@ -1,45 +1,70 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Http\Requests\Api\CategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Services\CategoryService;
-use Illuminate\Http\JsonResponse;
+use App\Models\Category;
+
 
 class CategoryController extends Controller
 {
-    public function __construct(protected CategoryService $categoryService) {}
-
-    public function index(): JsonResponse
+    // List all categories
+    public function index()
     {
-        $categories = $this->categoryService->list();
-        return response()->json(CategoryResource::collection($categories));
+        $categories = Category::with('parent')->paginate(10);
+        return view('admin.categories.index', compact('categories'));
     }
 
-    public function store(CategoryRequest $request): JsonResponse
+    // Show form to create category
+    public function create()
     {
-        $category = $this->categoryService->create($request->validated());
-        return response()->json(new CategoryResource($category), 201);
+        $parents = Category::all();
+        return view('admin.categories.create', compact('parents'));
     }
 
-    public function show($id): JsonResponse
+    // Store new category
+    public function store(Request $request)
     {
-        $category = $this->categoryService->show($id);
-        return response()->json(new CategoryResource($category));
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'parent_id' => 'nullable|exists:categories,id',
+        ]);
+
+        Category::create($request->only('name', 'parent_id'));
+
+        return redirect()->route('admin.categories.index')->with('success', 'Category created successfully.');
     }
 
-    public function update(CategoryRequest $request, $id): JsonResponse
+    // Show form to edit category
+    public function edit(Category $category)
     {
-        $category = $this->categoryService->update($id, $request->validated());
-        return response()->json(new CategoryResource($category));
+        $parents = Category::where('id', '!=', $category->id)->get(); // Prevent selecting self as parent
+        return view('admin.categories.edit', compact('category', 'parents'));
     }
 
-    public function destroy($id): JsonResponse
+    // Update category
+    public function update(Request $request, Category $category)
     {
-        $this->categoryService->delete($id);
-        return response()->json(['message' => 'Category deleted']);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'parent_id' => 'nullable|exists:categories,id|not_in:' . $category->id,
+        ]);
+
+        $category->update($request->only('name', 'parent_id'));
+
+        return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully.');
+    }
+
+    // Delete category
+    public function destroy(Category $category)
+    {
+        $category->delete();
+
+        return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully.');
     }
 }
-
