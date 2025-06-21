@@ -21,8 +21,7 @@ class Category extends Model
 
     public function attributes() {
         return $this->belongsToMany(Attribute::class)
-        ->withPivot('is_required')
-        ->withTimestamps();
+        ->withPivot('is_required');
     }
 }
 

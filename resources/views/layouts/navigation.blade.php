@@ -1,18 +1,18 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false, categoriesOpen: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
+                    <a href="{{ route('admin.dashboard') }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex items-center">
+                    <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
@@ -20,9 +20,47 @@
                         {{ __('Products') }}
                     </x-nav-link>
 
-                    <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
-                        {{ __('Categories') }}
+                    <!-- Categories dropdown trigger -->
+                    <div class="relative" x-data="{ open: false }" @mouseleave="open = false">
+                        <button 
+                            @mouseenter="open = true" 
+                            @click="open = !open" 
+                            type="button" 
+                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition ease-in-out duration-150"
+                            aria-haspopup="true"
+                            :aria-expanded="open.toString()"
+                        >
+                            Categories
+                            <svg class="ml-1 h-4 w-4 fill-current" viewBox="0 0 20 20" >
+                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.18l3.71-3.95a.75.75 0 011.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0L5.23 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div 
+                            x-show="open" 
+                            @click.away="open = false"
+                            x-transition
+                            class="absolute z-50 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                            style="display: none;"
+                        >
+                            <div class="py-1">
+                                <a href="{{ route('admin.categories.index') }}" 
+                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.categories.*') ? 'font-semibold bg-gray-100' : '' }}">
+                                    All Categories
+                                </a>
+                                <a href="{{ route('admin.attributes.index') }}" 
+                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.attributes.*') ? 'font-semibold bg-gray-100' : '' }}">
+                                    Attributes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <x-nav-link :href="route('admin.attributes.index')" :active="request()->routeIs('admin.attributes.*')">
+                        {{ __('Attributes') }}
                     </x-nav-link>
+
                 </div>
             </div>
 
@@ -75,18 +113,36 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-        <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-            {{ __('Dashboard') }}
-        </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                {{ __('Dashboard') }}
+            </x-responsive-nav-link>
 
-        <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
-            {{ __('Products') }}
-        </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+                {{ __('Products') }}
+            </x-responsive-nav-link>
 
-        <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
-            {{ __('Categories') }}
-        </x-responsive-nav-link>
-    </div>
+            <!-- Responsive Categories dropdown -->
+            <div x-data="{ openCategories: false }" class="pl-4">
+                <button @click="openCategories = !openCategories" class="w-full flex justify-between items-center py-2 text-left text-gray-700 hover:bg-gray-200 rounded">
+                    Categories
+                    <svg :class="{'rotate-180': openCategories}" class="h-4 w-4 transform transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.18l3.71-3.95a.75.75 0 011.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0L5.23 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div x-show="openCategories" x-transition class="pl-4 mt-1 space-y-1" style="display:none;">
+                    <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+                        {{ __('All Categories') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.attributes.index')" :active="request()->routeIs('admin.attributes.*')">
+                        {{ __('Attributes') }}
+                    </x-responsive-nav-link>
+                </div>
+            </div>
+
+            <x-responsive-nav-link :href="route('admin.attributes.index')" :active="request()->routeIs('admin.attributes.*')">
+                {{ __('Attributes') }}
+            </x-responsive-nav-link>
+        </div>
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">

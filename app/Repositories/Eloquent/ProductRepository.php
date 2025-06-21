@@ -19,9 +19,6 @@ class ProductRepository implements ProductRepositoryInterface
             ->when($filters['category_id'] ?? null, function ($query, $categoryId) {
                 $query->where('category_id', $categoryId);
             })
-            /* ->when($filters['sub_category_id'] ?? null, function ($query, $subCategoryId) {
-                $query->where('sub_category_id', $subCategoryId);
-            }) */
             ->with(['category', 'subCategory', 'attributes']) // eager load
             ->latest()
             ->paginate(10);

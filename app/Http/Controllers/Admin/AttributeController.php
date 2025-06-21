@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models;
 
 class AttributeController extends Controller
 {
     public function index()
     {
-        $attributes = Attribute::all();
+        $attributes = Models\Attribute::paginate(10);
         return view('admin.attributes.index', compact('attributes'));
     }
 
@@ -20,24 +21,34 @@ class AttributeController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['name' => 'required|unique:attributes']);
-        Attribute::create($request->only('name'));
-        return redirect()->route('admin.attributes.index')->with('success', 'Attribute created.');
+        $request->validate([
+            'name' => 'required|string|max:255|unique:attributes,name',
+        ]);
+        Models\Attribute::create([
+            'name' => $request->name,
+        ]);
+        return redirect()->route('admin.attributes.index')->with('success', 'Attribute created successfully.');
     }
 
-    public function edit(Attribute $attribute)
+    public function edit(Models\Attribute $attribute)
     {
         return view('admin.attributes.edit', compact('attribute'));
     }
 
-    public function update(Request $request, Attribute $attribute)
+    public function update(Request $request, Models\Attribute $attribute)
     {
-        $request->validate(['name' => 'required']);
-        $attribute->update($request->only('name'));
-        return redirect()->route('admin.attributes.index')->with('success', 'Attribute updated.');
+        $request->validate([
+            'name' => 'required|string|max:255|unique:attributes,name,' . $attribute->id,
+        ]);
+
+        $attribute->update([
+            'name' => $request->name,
+        ]);
+
+        return redirect()->route('admin.attributes.index')->with('success', 'Attribute updated successfully.');
     }
 
-    public function destroy(Attribute $attribute)
+    public function destroy(Models\Attribute $attribute)
     {
         $attribute->delete();
         return back()->with('success', 'Attribute deleted.');

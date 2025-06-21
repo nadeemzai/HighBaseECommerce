@@ -15,6 +15,7 @@
         <tr>
             <th class="border px-4 py-2">Name</th>
             <th class="border px-4 py-2">Parent Category</th>
+            <th class="border px-4 py-2">Attributes</th> <!-- New -->
             <th class="border px-4 py-2">Actions</th>
         </tr>
     </thead>
@@ -23,8 +24,23 @@
             <tr>
                 <td class="border px-4 py-2">{{ $category->name }}</td>
                 <td class="border px-4 py-2">{{ $category->parent?->name ?? '-' }}</td>
+
+                <td class="border px-4 py-2 text-sm">
+                    @forelse($category->attributes as $attr)
+                        <span class="inline-block bg-gray-100 px-2 py-1 rounded text-gray-700">
+                            {{ $attr->name }} 
+                            @if($attr->pivot->is_required)
+                                <sup class="text-red-500">*</sup>
+                            @endif
+                        </span>
+                    @empty
+                        <em class="text-gray-400">—</em>
+                    @endforelse
+                </td>
+
                 <td class="border px-4 py-2">
                     <a href="{{ route('admin.categories.edit', $category) }}" class="text-indigo-600 mr-2">Edit</a>
+                    <a href="{{ route('admin.categories.attributes.edit', $category) }}" class="text-blue-600 mr-2">Assign Attributes</a>
                     <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure to delete?');">
                         @csrf
                         @method('DELETE')
@@ -34,11 +50,12 @@
             </tr>
         @empty
             <tr>
-                <td colspan="3" class="border px-4 py-2 text-center">No categories found.</td>
+                <td colspan="4" class="border px-4 py-2 text-center">No categories found.</td>
             </tr>
         @endforelse
     </tbody>
 </table>
+
 
 <div class="mt-4">
     {{ $categories->links() }}
