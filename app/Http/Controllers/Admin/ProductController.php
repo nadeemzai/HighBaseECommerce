@@ -16,7 +16,7 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = Models\Product::with('category')->paginate(10);
+        $products = Models\Product::with('category')->get();
         return view('admin.products.index', compact('products'));
     }
 
@@ -34,9 +34,12 @@ class ProductController extends Controller
             'attributes' => 'nullable|array',
         ]);
 
-        $category = Category::find($request->category_id);
+        //dd($request->all());
 
-        foreach ($category->attributes()->wherePivot('required', true)->get() as $attr) {
+        $category = Models\Category::find($request->category_id);
+
+        // Validate required attributes dynamically
+        foreach ($category->attributes()->wherePivot('is_required', true)->get() as $attr) {
             $request->validate([
                 'attributes.' . $attr->id => 'required'
             ]);
@@ -46,9 +49,17 @@ class ProductController extends Controller
             $product = Models\Product::create($request->only('name', 'category_id'));
 
             if ($request->has('attributes')) {
-                foreach ($request->attributes as $attribute_id => $value) {
-                    $product->attributeValues()->attach($value, ['attribute_id' => $attribute_id]);
+                $attributeValues = [];
+
+                foreach ($request->input('attributes') as $attribute_id => $value) {
+                    $attributeValue = \App\Models\AttributeValue::find((int)$value);
+                    $attributeValues[] = [
+                        'attribute_id' => $attribute_id,
+                        'value' => $attributeValue?->value,
+                    ];
                 }
+
+                $product->attributeValues()->createMany($attributeValues);
             }
         });
 

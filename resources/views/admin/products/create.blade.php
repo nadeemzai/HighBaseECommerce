@@ -24,6 +24,8 @@
 
         <div id="attributeFields" class="space-y-4 mt-4"></div>
 
+        <br />
+
         <button class="bg-green-600 text-white px-4 py-2 rounded">Save</button>
     </form>
 </div>
@@ -34,22 +36,32 @@ document.getElementById('categorySelect').addEventListener('change', function ()
     const attributeFields = document.getElementById('attributeFields');
     attributeFields.innerHTML = '';
 
-    if (categoryId) {
-        fetch(`/api/categories/${categoryId}/attributes`)
-            .then(res => res.json())
-            .then(data => {
-                data.attributes.forEach(attr => {
-                    let field = `<label class="block font-semibold">${attr.name}</label>`;
-                    field += `<select name="attributes[${attr.id}]" class="w-full p-2 border rounded" ${attr.is_required ? 'required' : ''}>`;
-                    field += `<option value="">-- Select ${attr.name} --</option>`;
-                    for (const [id, value] of Object.entries(attr.values)) {
-                        field += `<option value="${id}">${value}</option>`;
-                    }
-                    field += `</select>`;
-                    attributeFields.innerHTML += field;
-                });
+   if (categoryId) {
+        fetch(`/api/v1/categories/${categoryId}/attributes`, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ip6POcepVb3NZ4W2nv3xhcCMORvqe0oi3qsH5ZRX52d5105d',
+                'Accept': 'application/json',
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const attributeFields = document.getElementById('attributeFields');
+            attributeFields.innerHTML = ''; 
+
+            data.attributes.forEach(attr => {
+                let field = `<label class="block font-semibold">${attr.name}</label>`;
+                field += `<select name="attributes[${attr.id}]" class="w-full p-2 border rounded" ${attr.is_required ? 'required' : ''}>`;
+                field += `<option value="">-- Select ${attr.name} --</option>`;
+                for (const [id, value] of Object.entries(attr.values)) {
+                    field += `<option value="${id}">${value}</option>`;
+                }
+                field += `</select>`;
+                attributeFields.innerHTML += field;
             });
+        });
     }
+
 });
 </script>
 @endsection

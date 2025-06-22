@@ -33,25 +33,44 @@ const selectedCategory = ref('')
 const products = ref([])
 const categories = ref([])
 
-const fetchProducts = async () => {
-  const url = selectedCategory.value
-    ? `http://localhost:8000/api/v1/products?category_id=${selectedCategory.value}`
-    : `http://localhost:8000/api/v1/products`
+  const fetchProducts = async () => {
+    const token = localStorage.getItem('auth_token') 
+    const url = selectedCategory.value
+      ? `http://localhost:8000/api/v1/products?category_id=${selectedCategory.value}`
+      : `http://localhost:8000/api/v1/products`
 
-  const res = await $fetch(url, { credentials: 'include' })
-  products.value = res.data
-}
+    try {
+      const res = await $fetch(url, {
+        method: 'GET',
+        credentials: 'include', 
+        headers: {
+          'Authorization': `Bearer ip6POcepVb3NZ4W2nv3xhcCMORvqe0oi3qsH5ZRX52d5105d`,
+          'Accept': 'application/json',
+        }
+      })
 
-const fetchCategories = async () => {
-  const res = await $fetch('http://localhost:8000/api/v1/categories', {
-    credentials: 'include',
+      products.value = res.data
+    } catch (error) {
+      console.error('Fetch failed:', error)
+      if (error.response?.status === 401) {
+        // Optionally handle token expiration
+        localStorage.removeItem('auth_token')
+        // navigateTo('/login')
+      }
+    }
+  }
+
+
+  const fetchCategories = async () => {
+    const res = await $fetch('http://localhost:8000/api/v1/categories', {
+      credentials: 'include',
+    })
+    categories.value = res.data
+  }
+
+  // Fetch on mount
+  onMounted(() => {
+    fetchCategories()
+    fetchProducts()
   })
-  categories.value = res.data
-}
-
-// Fetch on mount
-onMounted(() => {
-  fetchCategories()
-  fetchProducts()
-})
-</script>
+  </script>

@@ -16,7 +16,7 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::prefix('products')->group(function () {
         Route::get('/', [Api\ProductController::class, 'index']);
         Route::get('{id}', [Api\ProductController::class, 'show']);
