@@ -1,61 +1,137 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# 🛒 Laravel 12 E-Commerce Platform
 
-## About Laravel
+This project is a modular and scalable Laravel-based e-commerce system with:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- ✅ Dynamic **Category & Subcategory** Hierarchy  
+- ✅ Category-specific **Attributes**  
+- ✅ Full-featured **Admin Panel** using Laravel Breeze  
+- ✅ **RESTful APIs** to be consumed by a Nuxt frontend  
+- ✅ Category-wise product filters  
+- ✅ Tailwind CSS integration  
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 📁 Project Structure
 
-## Learning Laravel
+```
+laravel-ecommerce/
+├── app/
+├── bootstrap/
+├── config/
+├── database/
+├── public/
+├── resources/
+│   └── views/         → Admin panel views (Blade)
+├── routes/
+│   ├── web.php        → Admin panel routes
+│   └── api.php        → Public APIs
+├── nuxt/              → Nuxt frontend (if monorepo)
+└── README.md
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🧑‍💼 Admin Panel (Laravel Breeze)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### ✅ Features
 
-## Laravel Sponsors
+- Admin-authenticated login
+- CRUD for:
+  - Categories (with parent-child nesting)
+  - Attributes (assigned to categories, required/optional)
+  - Products (dynamic form based on category attributes)
+- Blade + TailwindCSS UI
+- Server-side rendered forms (non-AJAX)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 🔐 Login
 
-### Premium Partners
+```
+URL: http://localhost:8000/login
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+> Admin users should be seeded or created manually via tinker.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🔌 API Endpoints (Laravel Sanctum)
 
-## Code of Conduct
+These APIs are meant to be consumed by the Nuxt frontend or mobile apps.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 🔓 Authentication
 
-## Security Vulnerabilities
+Ensure you have a bearer token or pass session cookie using `credentials: 'include'`.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+### 📦 Products
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Method | Endpoint                         | Description                       |
+|--------|----------------------------------|-----------------------------------|
+| GET    | `/api/v1/products`               | List all products (paginated)     |
+| GET    | `/api/v1/products?category_id=2` | Filter products by category       |
+| POST   | `/api/v1/products`               | Create a new product (admin only) |
+
+---
+
+### 🗂 Categories
+
+| Method | Endpoint                     | Description                        |
+|--------|------------------------------|------------------------------------|
+| GET    | `/api/v1/categories`         | Get all parent categories + nested children |
+| GET    | `/api/v1/categories/{id}/attributes` | Get category-specific attributes |
+
+---
+
+## 🔧 Environment Setup
+
+### 🛠 Laravel
+
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve
+```
+
+> Breeze uses Vite. Run this in another terminal:
+
+```bash
+npm install
+npm run dev
+```
+
+---
+
+## 🌐 Nuxt Frontend (if using monorepo)
+
+Assuming Nuxt 3 is in `/nuxt`:
+
+```bash
+cd nuxt
+npm install
+npm run dev
+```
+
+Make sure CORS is enabled in Laravel, and API URLs point to `http://localhost:8000`.
+
+---
+
+## 🗃 Database Schema
+
+- `categories` → supports nested subcategories
+- `attributes` → attribute definitions
+- `attribute_category` → pivot for attributes per category (with `is_required`)
+- `products` → product master table
+- `attribute_values` → stores attribute values per product
+
+---
+
+## ✅ To-Do / Future
+
+- Product images
+- Stock/inventory system
+- Cart & Checkout
+- Role-based admin permissions
+- Product search API
